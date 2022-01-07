@@ -18,6 +18,25 @@ def __get_soup(url) -> bs4.BeautifulSoup:
     return bs(r.text, 'html.parser')
 
 
+def __formate_verse_number(query_arr: list, attr_num: int, digits: int):
+    try:
+        attrs = query_arr[attr_num].split('.')
+    except IndexError:
+        return False
+    if len(attrs) != digits:
+        return False
+    for i in range(len(attrs) - 1):
+        if not attrs[i].isdigit():
+            return False
+    verses = attrs[-1].split('-')
+    if len(verses) > 2 or (len(verses) == 1 and not verses[0].isdigit()):
+        return False
+    if len(verses) == 2 and (not verses[0].isdigit() or not verses[1].isdigit()):
+        return False
+
+    return '/'.join(attrs)
+
+
 def __construct_link(query: str) -> dict:
     url_arr = ['https://vedabase.io']
     languages = ['en', 'nl', 'ru', 'da', 'et', 'sk', 'es', 'de', 'uk',
@@ -35,43 +54,31 @@ def __construct_link(query: str) -> dict:
     if attrs[1].lower() not in books:
         errors.append("Wrong book code. Try one of 'bg', 'sb', 'cc'")
     else:
-        if attrs[1].lower() == 'cc' and attrs[2].lower() not in cc_books:
+        try:
+            cc_volume = attrs[2].lower()
+        except IndexError:
+            cc_volume = 'error'
+        if attrs[1].lower() == 'cc' and cc_volume not in cc_books:
             errors.append('Wrong volume code of CC')
         elif attrs[1].lower() == 'cc' and attrs[2].lower() in cc_books:
-            try:
-                chapter, verse = attrs[3].split('.')
-                int(chapter)
-                verses = verse.split('-')
-                if len(verses) > 2 or (len(verses) == 2 and (not verses[0].isdigit() or not verses[1].isdigit())):
-                    raise ValueError
-            except ValueError:
-                errors.append('Wrong chapter or verse of CC')
+            verse_link = __formate_verse_number(attrs, 3, 2)
+            if verse_link:
+                url_arr.append(f'cc/{attrs[2].lower()}/{verse_link}')
             else:
-                url_arr.append(f'cc/{attrs[2].lower()}/{chapter}/{verse}')
+                errors.append('Wrong chapter or verse of CC (Example: 5.25)')
+
         elif attrs[1].lower() == 'sb':
-            try:
-                volume, chapter, verse = attrs[2].split('.')
-                int(volume)
-                int(chapter)
-                verses = verse.split('-')
-                if len(verses) > 2 or (len(verses) == 2 and (not verses[0].isdigit() or not verses[1].isdigit())):
-                    raise ValueError
-            except ValueError:
-                errors.append('Wrong SB verse')
+            verse_link = __formate_verse_number(attrs, 2, 3)
+            if verse_link:
+                url_arr.append(f'sb/{verse_link}')
             else:
-                url_arr.append(f'sb/{volume}/{chapter}/{verse}')
+                errors.append('Wrong chapter or verse of SB (Example: 1.5.25)')
         else:
-            try:
-                chapter, verse = attrs[2].split('.')
-                int(chapter)
-                verses = verse.split('-')
-                if len(verses) > 2 or (len(verses) == 2 and (not verses[0].isdigit() or not verses[1].isdigit())):
-                    raise ValueError
-            except ValueError:
-                errors.append(f'Wrong chapter or verse of {attrs[1]}')
+            verse_link = __formate_verse_number(attrs, 2, 2)
+            if verse_link:
+                url_arr.append(f'bg/{verse_link}')
             else:
-                url_arr.append(
-                    f'{attrs[1]}/{chapter}/{verse}')
+                errors.append('Wrong chapter or verse of BG (Example: 5.25)')
     if errors:
         return {'errors': errors}
     else:

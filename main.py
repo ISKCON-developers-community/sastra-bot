@@ -43,23 +43,23 @@ CC (adi, madhya, antya): 'verse en cc adi 10.8'""")
 
 @dp.message_handler(lambda message: message.text.startswith("verse "))
 async def search_verse(message: types.Message):
-    try:
-        query_string = message.text.split('verse ')[1]
-    except IndexError:
-        return await message.reply('Do not understand this message')
+    if len(message.text.split()) < 4 or len(message.text.split()) > 5:
+        return await message.reply('Wrong query string. Try /help command')
+
+    query_string = message.text.split('verse ')[1]
     verse = get_full_verse(query_string)
     if 'errors' in verse:
+        logging.warning(
+            f"{message.text.split('verse ')[1]} - {' | '.join(verse['errors'])}")
         await message.reply('\n'.join(verse['errors']))
-        logging.error(
-            f"{message.text.split('verse ')[1]} --> {' | '.join(verse['errors'])}")
     else:
+        # logging.info(message.text.split('verse ')[1])
         await message.reply('\n\n'.join(list(verse.values())[:-1]))
-        logging.info(message.text.split('verse ')[1])
 
 
 @dp.message_handler()
 async def echo(message: types.Message):
-    await message.answer("Do not understand this message",  reply_markup=None)
+    await message.answer("Do not understand this message. Try /help command",  reply_markup=None)
 
 
 if __name__ == '__main__':
