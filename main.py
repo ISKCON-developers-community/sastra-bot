@@ -5,8 +5,6 @@ from dotenv import load_dotenv
 import logging
 from parse_vedabase import get_full_verse
 
-# q = 'ru sb 1.3.10'
-
 logfile = 'data.log'
 
 logging.basicConfig(filename=logfile,
@@ -17,6 +15,8 @@ logging.basicConfig(filename=logfile,
 load_dotenv()
 bot = Bot(token=os.getenv('TELEGRAM_BOT_TOKEN'))
 dp = Dispatcher(bot)
+
+root_id = os.getenv('ROOT_ID')
 
 
 @dp.message_handler(commands=['start', 'help'])
@@ -41,19 +41,20 @@ SB: 'verse uk sb 1.10.8'
 CC (adi, madhya, antya): 'verse en cc adi 10.8'""")
 
 
-@dp.message_handler(lambda message: message.text.startswith("verse "))
+@dp.message_handler(lambda message: message.text.lower().startswith("verse "))
 async def search_verse(message: types.Message):
-    if len(message.text.split()) < 4 or len(message.text.split()) > 5:
+    message_text = message.text.lower()
+    if len(message_text.split()) < 4 or len(message_text.split()) > 5:
         return await message.reply('Wrong query string. Try /help command')
 
-    query_string = message.text.split('verse ')[1]
+    query_string = message_text.split('verse ')[1]
     verse = get_full_verse(query_string)
     if 'errors' in verse:
         logging.warning(
-            f"{message.text.split('verse ')[1]} - {' | '.join(verse['errors'])}")
+            f"{message_text.split('verse ')[1]} - {' | '.join(verse['errors'])}")
         await message.reply('\n'.join(verse['errors']))
     else:
-        # logging.info(message.text.split('verse ')[1])
+        # logging.info(message_text.split('verse ')[1])
         await message.reply('\n\n'.join(list(verse.values())[:-1]))
 
 
