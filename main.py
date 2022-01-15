@@ -52,7 +52,10 @@ async def search_verse(message: types.Message):
             f"{message_text.split('verse ')[1]} - {' | '.join(verse['errors'])}")
         await message.reply('\n'.join(verse['errors']))
     else:
-        watch_purport = f"\n===============\nClick to read purport /purport{verse['purport_id']}"
+        if verse['purport_id'] == '':
+            watch_purport = ''
+        else:
+            watch_purport = f"\n===============\nClick to read purport /purport_{verse['purport_id']}"
         await message.reply('\n\n'.join(list(verse.values())[:-1]) + watch_purport)
 
 
@@ -63,9 +66,9 @@ async def sendind_to_users(message: types.Message):
             await bot.send_message(user, message.text.replace('/message ', ''))
 
 
-@dp.message_handler(lambda message: message.text.startswith("/purport"))
+@dp.message_handler(lambda message: message.text.startswith("/purport_"))
 async def sendind_purport(message: types.Message):
-    purport_id = message.text.replace('/purport', '')
+    purport_id = message.text.replace('/purport_', '')
     await message.reply(memory.get(purport_id).decode("utf-8"))
 
 
