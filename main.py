@@ -69,7 +69,10 @@ async def sendind_to_users(message: types.Message):
 @dp.message_handler(lambda message: message.text.startswith("/purport_"))
 async def sendind_purport(message: types.Message):
     purport_id = message.text.replace('/purport_', '')
-    await message.reply(memory.get(purport_id).decode("utf-8"))
+    try:
+        await message.reply(memory.get(purport_id).decode("utf-8"))
+    except AttributeError:
+        await message.reply(f'The link is out of date. You need to re-enter the verse number to getting text and comment.\nEx. verse en sb 1.10.8')
 
 
 @dp.message_handler()
