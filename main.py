@@ -1,11 +1,12 @@
 import logging
 from aiogram import Bot, Dispatcher, executor, types
 from aiogram.dispatcher import FSMContext
-from config import users_db_file, BOT_TOKEN, logfile, ROOT_ID
+from config import BOT_TOKEN, logfile, ROOT_ID
 from parse_vedabase import get_full_verse
 from users import Users
+from memory import memory
 
-users_db = Users(users_db_file)
+users_db = Users()
 logging.basicConfig(filename=logfile,
                     format='%(asctime)s %(levelname)-2s %(message)s',
                     filemode='a',
@@ -51,8 +52,8 @@ async def search_verse(message: types.Message):
             f"{message_text.split('verse ')[1]} - {' | '.join(verse['errors'])}")
         await message.reply('\n'.join(verse['errors']))
     else:
-        # logging.info(message_text.split('verse ')[1])
-        await message.reply('\n\n'.join(list(verse.values())[:-1]))
+        watch_purport = f"\n===============\nClick to read purport /purport{verse['purport_id']}"
+        await message.reply('\n\n'.join(list(verse.values())[:-1]) + watch_purport)
 
 
 @dp.message_handler(lambda message: message.text.startswith("/message "))
@@ -60,6 +61,12 @@ async def sendind_to_users(message: types.Message):
     if message.from_user.id == ROOT_ID:
         for user in users_db.users:
             await bot.send_message(user, message.text.replace('/message ', ''))
+
+
+@dp.message_handler(lambda message: message.text.startswith("/purport"))
+async def sendind_purport(message: types.Message):
+    purport_id = message.text.replace('/purport', '')
+    await message.reply(memory.get(purport_id).decode("utf-8"))
 
 
 @dp.message_handler()

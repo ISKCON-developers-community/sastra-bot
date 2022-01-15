@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup as bs
 import bs4
 import requests
 import time
+from memory import memory
 
 
 def __get_soup(url) -> bs4.BeautifulSoup:
@@ -82,7 +83,7 @@ def __construct_link(query: str) -> dict:
     if errors:
         return {'errors': errors}
     else:
-        return {'link': '/'.join(url_arr)}
+        return {'link': '/'.join(url_arr), 'attrs': attrs}
 
 
 def __formate_purport_paragraph(div):
@@ -115,15 +116,18 @@ def get_full_verse(query: str) -> dict:
         return {'errors': ['Page not found']}
 
     if purport_block:
-        purport_text = '\n\n'.join([__formate_purport_paragraph(
+        purport_text = title + ' Purport\n\n' + '\n\n'.join([__formate_purport_paragraph(
             div) for div in purport_block.find_all('div')])
+        purport_id = '_'.join(parsed_query['attrs']).replace('.', '_')
+        memory.set(purport_id, purport_text)
     else:
-        purport_text = ''
+        purport_id = ''
+
     return {
         'link': url,
         'title': title,
         'verse': verse_text,
         'word-by-word': word_by_word,
         'translation': translation,
-        'purport-text': purport_text
+        'purport_id': purport_id
     }
