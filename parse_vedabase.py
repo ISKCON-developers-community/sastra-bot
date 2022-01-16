@@ -118,7 +118,8 @@ def get_full_verse(query: str) -> dict:
     if purport_block:
         purport_text = title + ' Purport\n\n' + '\n\n'.join([__formate_purport_paragraph(
             div) for div in purport_block.find_all('div')])
-        purport_id = '_'.join(parsed_query['attrs']).replace('.', '_')
+        purport_id = '_'.join(parsed_query['attrs']).replace(
+            '.', '_').replace('-', '_')
         memory.set(purport_id, purport_text, ex=600)
     else:
         purport_id = ''
