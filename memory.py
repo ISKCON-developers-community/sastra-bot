@@ -1,4 +1,5 @@
-#import redis
+import redis
+from config import set_memory
 import datetime
 
 class Memory:
@@ -31,8 +32,10 @@ class Memory:
         for k in keys:
             del self.data[k]
 
-
-memory = Memory()
-
-
-#memory = redis.Redis(host='localhost', port=6379, db=0)
+if set_memory == 'self':
+    memory = Memory()
+elif set_memory == 'redis':
+    memory = redis.Redis(host='localhost', port=6379, db=0)
+else:
+    print("ERROR! Settings memory in congig.py ")
+    exit(1)
