@@ -3,16 +3,19 @@ from aiogram import Bot, Dispatcher, executor, types
 from aiogram.dispatcher import FSMContext
 from config import BOT_TOKEN, logfile, ROOT_ID
 from parse_vedabase import get_full_verse
-from users import Users
+from statiscics import Statisctic
 from memory import memory
 
-users_db = Users()
-logging.basicConfig(filename=logfile,
-                    format='%(asctime)s %(levelname)-2s %(message)s',
-                    filemode='a',
-                    datefmt='%Y-%m-%d %H:%M:%S',
-                    level=logging.INFO)
+statistic = Statisctic()
 
+mainlogger = logging.getLogger(__name__)
+mainlogger.setLevel(logging.INFO)
+handler = logging.FileHandler(logfile)
+handler.setFormatter(logging.Formatter(fmt='%(asctime)s %(levelname)-2s %(message)s'))
+mainlogger.addHandler(handler)
+
+aiogramlogger = logging.getLogger("aiogram")
+aiogramlogger.addHandler(handler)
 bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher(bot)
 
@@ -29,7 +32,6 @@ async def send_welcome(message: types.Message):
     #         'last_name', 'None'),
     #     dict(message.from_user).get('username', 'None')
     # ]
-    users_db.add_user(message.from_user.id)
     await message.reply("""To find the verse from the scripture, enter:
 - start with 'verse '
 - then enter the desired language ('en', 'nl', 'ru', 'da', 'et', 'sk', 'es', 'de', 'uk', 'lt', 'sl', 'fi', 'cs', 'hu', 'fr', 'ko', 'pt-br', 'bg', 'ja', 'zu')
@@ -44,9 +46,12 @@ async def search_verse(message: types.Message):
     message_text = message.text.lower()
     if len(message_text.split()) < 4 or len(message_text.split()) > 5:
         return await message.reply('Wrong query string. Try /help command')
-
     query_string = message_text.split('verse ')[1]
     verse = get_full_verse(query_string)
+    statistic.write_entry(
+        f'{message.from_user.id}:{message.from_user.username}:\
+{message.from_user.first_name}:{message.from_user.last_name}',
+        verse['purport_id'])
     if 'errors' in verse:
         logging.warning(
             f"{message_text.split('verse ')[1]} - {' | '.join(verse['errors'])}")
@@ -62,7 +67,7 @@ async def search_verse(message: types.Message):
 @dp.message_handler(lambda message: message.text.startswith("/message "))
 async def sendind_to_users(message: types.Message):
     if message.from_user.id == ROOT_ID:
-        for user in users_db.users:
+        for user in []:
             await bot.send_message(user, message.text.replace('/message ', ''))
 
 
