@@ -45,7 +45,7 @@ Chaitanya Charitamrita in English - Verse en CC Adi 8.17
 
 
 def get_help(language:str) -> str:
-    if language not in ['ru', 'uk', 'be']:
+    if language in ['ru', 'uk', 'be']:
         return russian_help
     return english_help
 
