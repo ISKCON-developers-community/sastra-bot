@@ -34,7 +34,7 @@ class Statisctic:
         elif tt[1].lower() == 'bg':
             text_name = f'{tt[0]} {tt[1].upper()} - {tt[2]} {tt[3]}'
             
-        self.logger.warning(f'{user_id} {text_name}')
+        self.logger.info(f'{user_id} {text_name}')
 
 
 #stat = Statisctic('files/stattest.log', 'statlogger', LOG_FORMAT)
