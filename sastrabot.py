@@ -63,6 +63,14 @@ async def search_verse(message: types.Message):
             watch_purport = f"\n===============\nClick to read purport /purport_{verse['purport_id']}"
         await message.reply('\n\n'.join(list(verse.values())[:-1]) + watch_purport)
 
+@dp.message_handler(commands=['stat'])
+async def get_statistics(message: types.Message):
+    if message.from_user.id == ROOT_ID:
+            await bot.send_document(
+                message.from_user.id,
+                open('files/stat.log', 
+                'rb'))
+
 
 @dp.message_handler(lambda message: message.text.startswith("/message "))
 async def sendind_to_users(message: types.Message):

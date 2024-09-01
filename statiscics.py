@@ -1,5 +1,6 @@
 import logging
 
+# TODO rotate logs every month
 LOG_FORMAT = "%(asctime)s %(message)s"
 
 class Statisctic:
