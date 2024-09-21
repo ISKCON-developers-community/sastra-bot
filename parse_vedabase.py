@@ -115,14 +115,17 @@ def get_full_verse(query: str) -> dict:
     except Exception:
         return {'errors': ['Page not found']}
 
+    purport_id = '_'.join(
+        parsed_query['attrs']).replace('.', '_').replace('-', '_')
+
     if purport_block:
-        purport_text = title + ' Purport\n\n' + '\n\n'.join([__formate_purport_paragraph(
-            div) for div in purport_block.find_all('div')])
-        purport_id = '_'.join(parsed_query['attrs']).replace(
-            '.', '_').replace('-', '_')
+        purport_text = title + ' Purport\n\n' + '\n\n'.join(
+            [__formate_purport_paragraph(div) for div in purport_block.find_all('div')]
+        )
         memory.set(purport_id, purport_text, ex=600)
+        is_purport = True
     else:
-        purport_id = ''
+        is_purport = False
 
     return {
         'link': url,
@@ -130,5 +133,6 @@ def get_full_verse(query: str) -> dict:
         'verse': verse_text,
         'word-by-word': word_by_word,
         'translation': translation,
+        'is_purport': is_purport,
         'purport_id': purport_id
     }
