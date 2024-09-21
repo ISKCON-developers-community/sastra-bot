@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "sastra-bot"
+version = "0.5.0"
+description = "Telegram bot sends verses from scriptures by request"
+authors = ["Aliaksandr <apxont@disroot.org>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+aiogram = "^3.13.1"
+python-dotenv = "^1.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
