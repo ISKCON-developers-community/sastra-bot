@@ -2,16 +2,16 @@ import asyncio
 import logging
 from aiogram import Bot, Dispatcher, types
 from aiogram.filters.command import Command
-from config.config import BOT_MODE, BOT_TOKEN
+from config.config import BOT_MODE, BOT_TOKEN, LOG_FILE
 
 
 # ========== LOGGER ==============
 LOG_FORMAT = "%(asctime)s %(levelname)s %(name)s - %(message)s"
 logging.basicConfig(
-		#filename="program.log",
+		filename=LOG_FILE if BOT_MODE == 'prod' else None,
 		level=logging.INFO if BOT_MODE == 'prod' else logging.DEBUG,
 		format=LOG_FORMAT)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger('SASTRABOT')
 
 logging.getLogger("aiogram").setLevel(logging.DEBUG + 1)
 # =======================================
